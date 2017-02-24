@@ -8,12 +8,12 @@ double SignedArea(const Texture& p, const Texture& q, const Texture& r){
 
 	//printf("q:%lf, %lf\n", q.x, q.y);
 	//printf("p:%lf, %lf\n", p.x, p.y);
-	printf("%lf, %lf\n", temp1.x, temp1.y);
-	printf("%lf, %lf\n", temp2.x, temp2.y);
+	//printf("%lf, %lf\n", temp1.x, temp1.y);
+	//printf("%lf, %lf\n", temp2.x, temp2.y);
 
 	temp3=CrossProduct(temp1, temp2);
 
-	printf("temp3 : %lf, %lf %lf\n\n", temp3.x, temp3.y,temp3.z);
+	/*printf("temp3 : %lf, %lf %lf\n\n", temp3.x, temp3.y,temp3.z);*/
 
 	result = sqrt(temp3.z*temp3.z)/2;
 
@@ -42,7 +42,7 @@ Texture getBarycentric(double *alpha, double *beta, double*gamma, const Texture&
 	double originSA = SignedArea(tc1, tc2, tc3);
 	Texture qtc;
 
-	printf("origin:%lf\n", originSA);
+	//printf("origin:%lf\n", originSA);
 
 	qtc.x = (tc1.x + tc2.x + tc3.x) / 3;
 	qtc.y = (tc1.y + tc2.y + tc3.y) / 3;
