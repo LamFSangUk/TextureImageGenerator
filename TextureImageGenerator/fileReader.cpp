@@ -40,9 +40,9 @@ void readFromFile(char* filename){
 			}
 		}
 		else if (line[0] == 'f'){
-			char vertexset[100];
-			char textureset[100];
-			char normalset[100];
+			char firstpoint[100];
+			char secondpoint[100];
+			char thirdpoint[100];
 
 			int vidx[3];//for vertex index
 			int vtidx[3];//for texture index
@@ -50,13 +50,14 @@ void readFromFile(char* filename){
 
 			TriangularMesh temp;
 
-			sscanf(line, "%*s %s %s %s", vertexset, textureset, normalset);
-			sscanf(vertexset, "%d%*c%d%*c%d", &vidx[0], &vidx[1], &vidx[2]);
-			sscanf(textureset, "%d%*c%d%*c%d", &vtidx[0], &vtidx[1], &vtidx[2]);
-			sscanf(normalset, "%d%*c%d%*c%d", &vnidx[0], &vnidx[1], &vnidx[2]);
+			sscanf(line, "%*s %s %s %s", firstpoint,secondpoint,thirdpoint);
+			sscanf(firstpoint, "%d%*c%d%*c%d", &vidx[0], &vtidx[0], &vnidx[0]);
+			sscanf(secondpoint, "%d%*c%d%*c%d", &vidx[1], &vtidx[1], &vnidx[1]);
+			sscanf(thirdpoint, "%d%*c%d%*c%d", &vidx[2], &vtidx[2], &vnidx[2]);
 
 			for (int i = 0; i < 3; i++){
 				temp.p[i].vertexidx = vidx[i];
+				//printf("%d /", vtidx[i]);
 				temp.p[i].normalidx = vnidx[i];
 				temp.p[i].textureidx = vtidx[i];
 			}
