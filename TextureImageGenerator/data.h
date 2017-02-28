@@ -20,10 +20,10 @@ typedef struct{
 	int vertexidx;
 	int normalidx;
 	int textureidx;
-}Point;
+}PointIdx;
 
 typedef struct{
-	Point p[3];
+	PointIdx p[3];
 }TriangularMesh;
 
 extern vector<Vertex> v;

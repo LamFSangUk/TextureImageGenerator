@@ -1,10 +1,12 @@
 #include<stdio.h>
 #include"data.h"
 #include"operation.h"
+#include"pointmap.h"
 
 void readFromFile(char* filename);
+void readPointCloud(char* filename);
 
-FILE*test;
+//FILE*test;
 
 //extern vector<Vertex> v;
 //extern vector<Texture> t;
@@ -12,17 +14,31 @@ FILE*test;
 //
 //extern vector<TriangularMesh> tm;
 
+PointMap points_data(3050641);
+
 int main(void){
 
-	char *filename = "carModel_uv.obj";
-	readFromFile(filename);
+	char *objfilename = "carModel_uv.obj";
+	char *pointcloudfile = "ÀÚµ¿Â÷¸ðµ¨_PointCloud_color.ply";
+	
+	//points_data=PointMap;
+
+	readFromFile(objfilename);
+	printf("**************** OBJ FILE READ COMPLETE ****************\n");
+	readPointCloud(pointcloudfile);
+	printf("**************** POINTCLOUD READ COMPLETE ****************\n");
+
+	points_data.balance();
 
 	int i, len;
 
-	test = fopen("test.dat", "w");
+	float max_dist = 10000.0;
+	int npoints = 10;
+
+	//test = fopen("test.dat", "w");
 
 	len = tm.size();
-	printf("%d\n", len);
+	//printf("%d\n", len);
 	for (i = 0; i < 10; i++){
 		Texture tc1, tc2, tc3, qtc;
 		Vertex qm,v1,v2,v3;
@@ -32,7 +48,7 @@ int main(void){
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
 
-		printf("%lf %lf \n", tc1.x, tc1.y);
+		//printf("%lf %lf \n", tc1.x, tc1.y);
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -44,7 +60,7 @@ int main(void){
 
 		qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
 		
-		printf("%lf %lf %lf//\n", alpha, beta, gamma);
+		//printf("%lf %lf %lf//\n", alpha, beta, gamma);
 
 		qm.x = alpha*v1.x + beta*v2.x + gamma*v3.x;
 		qm.y = alpha*v1.y + beta*v2.y + gamma*v3.y;
@@ -54,7 +70,29 @@ int main(void){
 		nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
 		nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;
 
-		fprintf(test, "%d %lf %lf %lf\n", i, qm.x, qm.y, qm.z);
+		NearestPoints np;
+
+		np.dist2 = (float*)alloca(sizeof(float)*(npoints + 1));
+		np.index = (const Point**)alloca(sizeof(Point*)*(npoints + 1));
+
+		np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
+		np.max = npoints;
+		np.found = 0;
+		np.got_heap = 0;
+		np.dist2[0] = max_dist*max_dist;
+
+		points_data.locate_points(&np, 1);
+
+		//check
+		printf("check : %d %lf %lf %lf\n", i, qm.x, qm.y, qm.z);
+		printf("%d/", np.found);
+		for (int i = 1; i <= np.found; i++)
+			printf("%f %f %f %u %u %u\n", np.index[i]->pos[0], np.index[i]->pos[1], np.index[i]->pos[2], np.index[i]->color[0], np.index[i]->color[1], np.index[i]->color[2]);
+		printf("\n");
+
+
+		
+
 	}
 
 	return 0;
