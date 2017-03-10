@@ -1,7 +1,9 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include"data.h"
 #include"operation.h"
 #include"pointmap.h"
+#include"bmp.h"
 
 void readFromFile(char* filename);
 void readPointCloud(char* filename);
@@ -30,16 +32,40 @@ int main(void){
 
 	points_data.balance();
 
-	int i, len;
-
 	float max_dist = 10000.0;
 	int npoints = 10;
 
+	//NearestPoints np;
+
+	//np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
+	//np.index = (const Point**)malloc(sizeof(Point*)*(npoints + 1));
+
+	//np.pos[0] = -33.314743; np.pos[1] = 386.442291; np.pos[2] = -1267.479736;
+	//np.max = npoints;
+	//np.found = 0;
+	//np.got_heap = 0;
+	//np.dist2[0] = max_dist*max_dist;
+
+	//points_data.locate_points(&np, 1);
+	//printf("NN\n");
+	//printf("np.found:%d\n", np.found);
+	//for (int i = 1; i <= np.found; i++){
+	//	printf("%f %f %f %u %u %u\n", np.index[i]->pos[0], np.index[i]->pos[1], np.index[i]->pos[2], np.index[i]->color[0], np.index[i]->color[1], np.index[i]->color[2]);
+	//	printf("\n");
+	//}
+
+	int i, len;
+
+	unsigned char *img;
+	int width=1920, height=1080;
+
 	//test = fopen("test.dat", "w");
+
+	img = (unsigned char *)calloc(3 * width*height,1);
 
 	len = tm.size();
 	//printf("%d\n", len);
-	for (i = 0; i < 10; i++){
+	for (i = 0; i < len; i++){
 		Texture tc1, tc2, tc3, qtc;
 		Vertex qm,v1,v2,v3;
 		Normal nm,n1,n2,n3;
@@ -72,8 +98,8 @@ int main(void){
 
 		NearestPoints np;
 
-		np.dist2 = (float*)alloca(sizeof(float)*(npoints + 1));
-		np.index = (const Point**)alloca(sizeof(Point*)*(npoints + 1));
+		np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
+		np.index = (const Point**)malloc(sizeof(Point*)*(npoints + 1));
 
 		np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
 		np.max = npoints;
@@ -84,16 +110,44 @@ int main(void){
 		points_data.locate_points(&np, 1);
 
 		//check
+		/*printf("point : %lf %lf %lf/%lf %lf %lf/%lf %lf %lf\n", v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
 		printf("check : %d %lf %lf %lf\n", i, qm.x, qm.y, qm.z);
-		printf("%d/", np.found);
-		for (int i = 1; i <= np.found; i++)
-			printf("%f %f %f %u %u %u\n", np.index[i]->pos[0], np.index[i]->pos[1], np.index[i]->pos[2], np.index[i]->color[0], np.index[i]->color[1], np.index[i]->color[2]);
-		printf("\n");
+		printf("%d\n", np.found);*/
 
+		int mix_color[3] = { 0 };
 
+		for (int i = 1; i <= np.found; i++){
+			//printf("%f %f %f %u %u %u\n", np.index[i]->pos[0], np.index[i]->pos[1], np.index[i]->pos[2], np.index[i]->color[0], np.index[i]->color[1], np.index[i]->color[2]);
+			mix_color[0] += np.index[i]->color[0];
+			mix_color[1] += np.index[i]->color[1];
+			mix_color[2] += np.index[i]->color[2];
+		}
+		//printf("\n");
+
+		//calculate color
+		if (np.found!= 0){
+			mix_color[0] /= np.found;
+			mix_color[1] /= np.found;
+			mix_color[2] /= np.found;
+		}
+
+		////printf("%d %d\n", (int)(qtc.x*width), (int)(qtc.y*height));
+		if ((int)(qtc.x*width) >= 0 && (int)(qtc.y*height) >= 0 && (int)(qtc.x*width) < width && (int)(qtc.y*height) < height){
+			int pixel = ((int)(qtc.x*width) + (int)(qtc.y*height)*width) * 3;
+			if (pixel >= height*width * 3)
+				pixel = height*width * 3 - 1;
+			if (pixel < 0) pixel = 0;
+			img[pixel + 2] = (unsigned char)mix_color[0];
+			img[pixel + 1] = (unsigned char)mix_color[1];
+			img[pixel + 0] = (unsigned char)mix_color[2];
+		}
 		
 
 	}
+	printf("HERE");
+
+
+	makeBmpImage(width, height, img);
 
 	return 0;
 }
