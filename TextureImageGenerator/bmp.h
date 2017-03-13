@@ -1,3 +1,6 @@
+#ifndef __BMP_HEADER__
+#define __BMP_HEADER__
+
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -49,10 +52,12 @@ void makeBmpImage(int w, int h,unsigned char *img){
 	f = fopen("img.bmp", "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);
-	for (int i = 0; i < h; i++)
+	for (int i = h-1; i >=0 ; i--)
 	{
 		fwrite(img + (w*(h - i - 1) * 3), 3, w, f);
 		fwrite(bmppad, 1, (4 - (w * 3) % 4) % 4, f);
 	}
 	fclose(f);
 }
+
+#endif
