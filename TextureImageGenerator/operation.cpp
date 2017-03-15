@@ -3,19 +3,12 @@
 double SignedArea(const Texture& p, const Texture& q, const Texture& r){
 	double result;
 	Vector temp1, temp2, temp3;
-	temp1=TextureSubstraction(q, p);
-	temp2=TextureSubstraction(r, p);
+	temp1=TextureSubstraction(q, p); //Find the Vector 1
+	temp2=TextureSubstraction(r, p); //Find the Vector 2
 
-	//printf("q:%lf, %lf\n", q.x, q.y);
-	//printf("p:%lf, %lf\n", p.x, p.y);
-	//printf("%lf, %lf\n", temp1.x, temp1.y);
-	//printf("%lf, %lf\n", temp2.x, temp2.y);
-
-	temp3=CrossProduct(temp1, temp2);
-
-	/*printf("temp3 : %lf, %lf %lf\n\n", temp3.x, temp3.y,temp3.z);*/
-
-	result = sqrt(temp3.z*temp3.z)/2;
+	// Calculate the triangle's area by cross product between Vector 1 and Vector 2
+	temp3=CrossProduct(temp1, temp2); 
+	result = sqrt(temp3.z*temp3.z)/2; 
 
 	if (result<0) result = (-result);
 
@@ -42,8 +35,6 @@ Texture getBarycentric(double *alpha, double *beta, double*gamma, const Texture&
 	double originSA = SignedArea(tc1, tc2, tc3);
 	Texture qtc;
 
-	//printf("origin:%lf\n", originSA);
-
 	qtc.x = (tc1.x + tc2.x + tc3.x) / 3;
 	qtc.y = (tc1.y + tc2.y + tc3.y) / 3;
 
@@ -67,17 +58,16 @@ void paintPicture(unsigned char *img,int width,int height){
 	int i, len;
 
 	len = tm.size();
-	//printf("%d\n", len);
+
 	for (i = 0; i < len; i++){
 		Texture tc1, tc2, tc3, qtc;
 		Vertex qm, v1, v2, v3;
 		Normal nm, n1, n2, n3;
 		double alpha, beta, gamma;
+
 		tc1 = t[tm[i].p[0].textureidx - 1];
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
-
-		//printf("%lf %lf \n", tc1.x, tc1.y);
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -87,10 +77,11 @@ void paintPicture(unsigned char *img,int width,int height){
 		n2 = n[tm[i].p[1].normalidx - 1];
 		n3 = n[tm[i].p[2].normalidx - 1];
 
+		//Calculate the barycentric point of three points on Texture Img(2nd dim)
 		qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
 
-		//printf("%lf %lf %lf//\n", alpha, beta, gamma);
 
+		//Calculate the barycentric point of three points on PointCloud(3rd dim)
 		qm.x = alpha*v1.x + beta*v2.x + gamma*v3.x;
 		qm.y = alpha*v1.y + beta*v2.y + gamma*v3.y;
 		qm.z = alpha*v1.z + beta*v2.z + gamma*v3.z;
@@ -99,6 +90,8 @@ void paintPicture(unsigned char *img,int width,int height){
 		nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
 		nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;
 
+
+		//Find 10 Nearest Neighbors.
 		NearestPoints np;
 
 		np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
@@ -112,30 +105,28 @@ void paintPicture(unsigned char *img,int width,int height){
 
 		points_data.locate_points(&np, 1);
 
-		//check
-		/*printf("point : %lf %lf %lf/%lf %lf %lf/%lf %lf %lf\n", v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, v3.x, v3.y, v3.z);
-		printf("check : %d %lf %lf %lf\n", i, qm.x, qm.y, qm.z);
-		printf("%d\n", np.found);*/
 
+		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
-
+		
 		for (int i = 1; i <= np.found; i++){
-			//printf("%f %f %f %u %u %u\n", np.index[i]->pos[0], np.index[i]->pos[1], np.index[i]->pos[2], np.index[i]->color[0], np.index[i]->color[1], np.index[i]->color[2]);
 			mix_color[0] += np.index[i]->color[0];
 			mix_color[1] += np.index[i]->color[1];
 			mix_color[2] += np.index[i]->color[2];
 		}
-		//printf("\n");
-
-		//calculate color
+		
 		if (np.found != 0){
 			mix_color[0] /= np.found;
 			mix_color[1] /= np.found;
 			mix_color[2] /= np.found;
 		}
 
-		////printf("%d %d\n", (int)(qtc.x*width), (int)(qtc.y*height));
-		if ((int)(qtc.x*width) >= 0 && (int)(qtc.y*height) >= 0 && (int)(qtc.x*width) < width && (int)(qtc.y*height) < height){
+		//paint color to img arr
+		if ((int)(qtc.x*width) >= 0
+			&& (int)(qtc.y*height) >= 0
+			&& (int)(qtc.x*width) < width
+			&& (int)(qtc.y*height) < height){
+
 			int pixel = ((int)(qtc.x*width) + (int)(qtc.y*height)*width) * 3;
 			if (pixel >= height*width * 3)
 				pixel = height*width * 3 - 1;

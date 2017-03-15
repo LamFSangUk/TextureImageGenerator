@@ -7,29 +7,7 @@
 void makeBmpImage(int w, int h,unsigned char *img){
 
 	FILE *f;
-	//unsigned char *img = NULL;
 	int filesize = 54 + 3 * w*h;  //w is your image width, h is image height, both int
-	//if (img)
-	//	free(img);
-	//img = (unsigned char *)malloc(3 * w*h);
-	//memset(img, 0, sizeof(img));
-
-	//for (int i = 0; i < w; i++)
-	//{
-	//	for (int j = 0; j < h; j++)
-	//	{
-	//		x = i; y = (h - 1) - j;
-	//		r = red[i][j] * 255;
-	//		g = green[i][j] * 255;
-	//		b = blue[i][j] * 255;
-	//		if (r > 255) r = 255;
-	//		if (g > 255) g = 255;
-	//		if (b > 255) b = 255;
-	//		img[(x + y*w) * 3 + 2] = (unsigned char)(r);
-	//		img[(x + y*w) * 3 + 1] = (unsigned char)(g);
-	//		img[(x + y*w) * 3 + 0] = (unsigned char)(b);
-	//	}
-	//}
 
 	unsigned char bmpfileheader[14] = { 'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0 };
 	unsigned char bmpinfoheader[40] = { 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0 };

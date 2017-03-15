@@ -5,7 +5,7 @@
 #include"pointmap.h"
 #include"bmp.h"
 
-void readFromFile(char* filename);
+void readObjFile(char* filename);
 void readPointCloud(char* filename);
 
 PointMap points_data(3050641);
@@ -21,7 +21,7 @@ int main(void){
 	printf("input the pointcloud file name : ");
 	scanf("%s", pointcloudfilename);
 
-	readFromFile(objfilename);
+	readObjFile(objfilename);
 	printf("***************** OBJ FILE READ COMPLETE *****************\n");
 	readPointCloud(pointcloudfilename);
 	printf("**************** POINTCLOUD READ COMPLETE ****************\n");
@@ -35,6 +35,7 @@ int main(void){
 
 	paintPicture(img, width, height);
 
+	//Create BMP image file, and write img arr to it.
 	makeBmpImage(width, height, img);
 
 	return 0;
