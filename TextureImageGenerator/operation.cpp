@@ -48,12 +48,24 @@ Texture getBarycentric(double *alpha, double *beta, double*gamma, const Texture&
 	return qtc;
 }
 
+double getDist(const float *p1,const float *p2){
+
+	double dist=0;
+	for (int i = 0; i < 3; i++){
+		dist += ((p1[i] - p2[i])*(p1[i] - p2[i]));
+	}
+
+	return dist;
+}
+
 void paintPicture(unsigned char *img,int width,int height){
 
 	extern PointMap points_data;
 
+	FILE *fp = fopen("error.txt", "w");
+
 	float max_dist = 10000.0;
-	int npoints = 10;
+	int npoints = 20;
 
 	int i, len;
 
@@ -108,18 +120,32 @@ void paintPicture(unsigned char *img,int width,int height){
 
 		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
+		double sum_dist=0;
+		double *dist;
+
+		dist = (double*)malloc(sizeof(double)*(np.max+1));
 		
 		for (int i = 1; i <= np.found; i++){
-			mix_color[0] += np.index[i]->color[0];
-			mix_color[1] += np.index[i]->color[1];
-			mix_color[2] += np.index[i]->color[2];
+			dist[i] = getDist(np.pos, np.index[i]->pos);
+			sum_dist += dist[i];
 		}
-		
-		if (np.found != 0){
+
+		for (int i = 1; i <= np.found; i++){
+			for (int j = 0; j < 3;j++)
+				mix_color[j] += (int)((sum_dist - dist[i]) / sum_dist*np.index[i]->color[j]);
+		}
+
+		//for (int i = 1; i <= np.found; i++){
+		//	mix_color[0] += np.index[i]->color[0];
+		//	mix_color[1] += np.index[i]->color[1];
+		//	mix_color[2] += np.index[i]->color[2];
+		//}
+		//
+		/*if (np.found != 0){
 			mix_color[0] /= np.found;
 			mix_color[1] /= np.found;
 			mix_color[2] /= np.found;
-		}
+		}*/
 
 		//paint color to img arr
 		if ((int)(qtc.x*width) >= 0
@@ -135,7 +161,13 @@ void paintPicture(unsigned char *img,int width,int height){
 			img[pixel + 1] = (unsigned char)mix_color[1];
 			img[pixel + 0] = (unsigned char)mix_color[2];
 		}
+		else{
+			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf | qtc.x : %8.4lf qtc.y : %8.4lf\n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z,qtc.x,qtc.y);
+			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\n", tc1.x, tc1.y, tc2.x, tc2.y, tc3.x, tc3.y);
+		}
+		free(dist);
 
 
 	}
+	fclose(fp);
 }

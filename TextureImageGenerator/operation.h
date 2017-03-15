@@ -12,6 +12,7 @@ double SignedArea(const Texture& p, const Texture& q, const Texture& r);
 Vector CrossProduct(Vector,Vector);
 Vector TextureSubstraction(const Texture&, const Texture&);
 Texture getBarycentric(double *, double *, double *, const Texture&, const Texture&, const Texture&);
+double getDist(const float *, const float *);
 void paintPicture(unsigned char *,int, int);
 
 #endif

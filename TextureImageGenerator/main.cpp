@@ -29,7 +29,7 @@ int main(void){
 	points_data.balance();
 
 	unsigned char *img;
-	int width=1920, height=1080;
+	int width=960, height=540;
 
 	img = (unsigned char *)calloc(3 * width*height,1);
 
@@ -37,6 +37,7 @@ int main(void){
 
 	//Create BMP image file, and write img arr to it.
 	makeBmpImage(width, height, img);
+	printf("******************* GENERATE BMP IMAGE *******************\n");
 
 	return 0;
 }
