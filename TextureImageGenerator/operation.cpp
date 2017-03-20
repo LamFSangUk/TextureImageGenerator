@@ -165,7 +165,7 @@ void paintPicture(unsigned char *img,int width,int height){
 			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf | qtc.x : %8.4lf qtc.y : %8.4lf\n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z,qtc.x,qtc.y);
 			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\n", tc1.x, tc1.y, tc2.x, tc2.y, tc3.x, tc3.y);
 		}
-		free(dist);
+		//free(dist);
 
 
 	}
