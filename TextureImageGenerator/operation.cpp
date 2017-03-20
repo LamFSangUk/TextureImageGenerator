@@ -55,7 +55,7 @@ double getDist(const float *p1,const float *p2){
 		dist += ((p1[i] - p2[i])*(p1[i] - p2[i]));
 	}
 
-	return dist;
+	return sqrt(dist);
 }
 
 void paintPicture(unsigned char *img,int width,int height){
@@ -120,32 +120,32 @@ void paintPicture(unsigned char *img,int width,int height){
 
 		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
-		double sum_dist=0;
-		double *dist;
+		//double sum_dist=0;
+		//double *dist;
 
-		dist = (double*)malloc(sizeof(double)*(np.max+1));
-		
-		for (int i = 1; i <= np.found; i++){
-			dist[i] = getDist(np.pos, np.index[i]->pos);
-			sum_dist += dist[i];
-		}
-
-		for (int i = 1; i <= np.found; i++){
-			for (int j = 0; j < 3;j++)
-				mix_color[j] += (int)((sum_dist - dist[i]) / sum_dist*np.index[i]->color[j]);
-		}
+		//dist = (double*)malloc(sizeof(double)*(np.max+1));
+		//
+		//for (int i = 1; i <= np.found; i++){
+		//	dist[i] = getDist(np.pos, np.index[i]->pos);
+		//	sum_dist += dist[i];
+		//}
 
 		//for (int i = 1; i <= np.found; i++){
-		//	mix_color[0] += np.index[i]->color[0];
-		//	mix_color[1] += np.index[i]->color[1];
-		//	mix_color[2] += np.index[i]->color[2];
+		//	for (int j = 0; j < 3;j++)
+		//		mix_color[j] += (int)((sum_dist - dist[i]) / sum_dist*np.index[i]->color[j]);
 		//}
-		//
-		/*if (np.found != 0){
+
+		for (int i = 1; i <= np.found; i++){
+			mix_color[0] += np.index[i]->color[0];
+			mix_color[1] += np.index[i]->color[1];
+			mix_color[2] += np.index[i]->color[2];
+		}
+		
+		if (np.found != 0){
 			mix_color[0] /= np.found;
 			mix_color[1] /= np.found;
 			mix_color[2] /= np.found;
-		}*/
+		}
 
 		//paint color to img arr
 		if ((int)(qtc.x*width) >= 0
