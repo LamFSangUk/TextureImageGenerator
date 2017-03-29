@@ -58,6 +58,56 @@ double getDist(const float *p1,const float *p2){
 	return sqrt(dist);
 }
 
+
+void paintTriangle(unsigned char *img,PointCoord a, PointCoord b, PointCoord c){
+	//Sort by y-coord
+	PointCoord temp;
+	if (a.y < b.y){
+		temp = a;
+		a = b;
+		b = temp;
+	}
+	if (b.y < c.y){
+		temp = b;
+		b = c;
+		c = temp;
+	}
+	if (a.y < b.y){
+		temp = a;
+		a = b;
+		b = temp;
+	}
+
+	double slope_ac = (double)(a.y - c.y) / (a.x - c.x);//delta x=1/slope
+	double slope_ab = (double)(a.y - b.y) / (a.x - b.x);
+	double slope_bc = (double)(b.y - c.y) / (b.x - c.x);
+
+	int start = a.x, end = a.x;
+	double candi1 = a.x, candi2 = a.x;
+	double slope_var = slope_ab;
+	for (int i = a.y; i >= c.y; i--){
+		if (i == b.y) slope_var = slope_bc;
+		/*int j = start;
+		do{
+		printf("%d %d|", j, i);
+		j++;
+		} while (j < end);*/
+
+		for (int j = start; j < end; j++){
+			printf("%d %d|", j, i);
+		}
+		printf("\n");
+		candi1 = candi1 - 1 / slope_ac;
+		candi2 = candi2 - 1 / slope_var;
+		start = (int)(candi1 + 0.5);
+		end = (int)candi2;
+		if (candi1 > candi2){
+			start = (int)(candi2 + 0.5);
+			end = (int)candi1;
+		}
+	}
+}
+
 void paintPicture(unsigned char *img,int width,int height){
 
 	extern PointMap points_data;
