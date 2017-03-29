@@ -29,7 +29,7 @@ int main(void){
 	points_data.balance();
 
 	unsigned char *img;
-	int width=960, height=540;
+	int width=2048, height=1080;
 
 	img = (unsigned char *)calloc(3 * width*height,1);
 

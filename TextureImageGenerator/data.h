@@ -16,6 +16,16 @@ typedef struct{
 	double x, y;
 }Texture;
 
+typedef struct PointCoord{
+	int x, y;
+	bool operator==(struct PointCoord a){
+		if (a.x == x && a.y == y)
+			return true;
+		else
+			return false;
+	}
+}PointCoord;
+
 typedef struct{
 	int vertexidx;
 	int normalidx;

@@ -59,7 +59,7 @@ double getDist(const float *p1,const float *p2){
 }
 
 
-void paintTriangle(unsigned char *img,PointCoord a, PointCoord b, PointCoord c){
+void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord a, PointCoord b, PointCoord c){
 	//Sort by y-coord
 	PointCoord temp;
 	if (a.y < b.y){
@@ -93,10 +93,17 @@ void paintTriangle(unsigned char *img,PointCoord a, PointCoord b, PointCoord c){
 		j++;
 		} while (j < end);*/
 
-		for (int j = start; j < end; j++){
-			printf("%d %d|", j, i);
+		for (int j = start; j <= end; j++){
+			//printf("%d %d|", j, i);
+			int pixel = (j + i*width)*3;
+			if (pixel >= height*width * 3)
+				pixel = height*width * 3 - 1;
+			if (pixel < 0) pixel = 0;
+			img[pixel + 2] = (unsigned char)color[0];
+			img[pixel + 1] = (unsigned char)color[1];
+			img[pixel + 0] = (unsigned char)color[2];
 		}
-		printf("\n");
+		//printf("\n");
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
 		start = (int)(candi1 + 0.5);
@@ -127,9 +134,15 @@ void paintPicture(unsigned char *img,int width,int height){
 		Normal nm, n1, n2, n3;
 		double alpha, beta, gamma;
 
+		NearestPoints np;
+
 		tc1 = t[tm[i].p[0].textureidx - 1];
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
+		PointCoord a, b, c;
+		a.x = tc1.x*width; a.y = tc1.y*height;
+		b.x = tc2.x*width; b.y = tc2.y*height;
+		c.x = tc3.x*width; c.y = tc3.y*height;
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -139,34 +152,49 @@ void paintPicture(unsigned char *img,int width,int height){
 		n2 = n[tm[i].p[1].normalidx - 1];
 		n3 = n[tm[i].p[2].normalidx - 1];
 
-		//Calculate the barycentric point of three points on Texture Img(2nd dim)
-		qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
+		if ((a == b) || (b == c) || (a == c)){
+			if (a == b){
+				np.pos[0] = v1.x;
+				np.pos[1] = v1.y;
+				np.pos[2] = v1.z;
+			}
+			else if (b == c){
+				np.pos[0] = v2.x;
+				np.pos[1] = v2.y;
+				np.pos[2] = v2.z;
+			}
+			else{
+				np.pos[0] = v1.x;
+				np.pos[1] = v1.y;
+				np.pos[2] = v1.z;
+			}
+		}
+		else{
+			//Calculate the barycentric point of three points on Texture Img(2nd dim)
+			qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
 
+			//Calculate the barycentric point of three points on PointCloud(3rd dim)
+			qm.x = alpha*v1.x + beta*v2.x + gamma*v3.x;
+			qm.y = alpha*v1.y + beta*v2.y + gamma*v3.y;
+			qm.z = alpha*v1.z + beta*v2.z + gamma*v3.z;
 
-		//Calculate the barycentric point of three points on PointCloud(3rd dim)
-		qm.x = alpha*v1.x + beta*v2.x + gamma*v3.x;
-		qm.y = alpha*v1.y + beta*v2.y + gamma*v3.y;
-		qm.z = alpha*v1.z + beta*v2.z + gamma*v3.z;
+			nm.x = alpha*n1.x + beta*n2.x + gamma*n3.x;
+			nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
+			nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;
 
-		nm.x = alpha*n1.x + beta*n2.x + gamma*n3.x;
-		nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
-		nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;
-
-
+			np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
+			
+		}
 		//Find 10 Nearest Neighbors.
-		NearestPoints np;
-
 		np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
 		np.index = (const Point**)malloc(sizeof(Point*)*(npoints + 1));
 
-		np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
 		np.max = npoints;
 		np.found = 0;
 		np.got_heap = 0;
 		np.dist2[0] = max_dist*max_dist;
 
 		points_data.locate_points(&np, 1);
-
 
 		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
@@ -197,27 +225,14 @@ void paintPicture(unsigned char *img,int width,int height){
 			mix_color[2] /= np.found;
 		}
 
+		if (mix_color[0] == 0 && mix_color[1] == 0 && mix_color[2] == 0){
+			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf \n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z);
+			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\nnpfound:%d nppos %lf %lf %lf\n", a.x, a.y, b.x, b.y, c.x, c.y,np.found,np.pos[0],np.pos[1],np.pos[2]);
+		}
 		//paint color to img arr
-		if ((int)(qtc.x*width) >= 0
-			&& (int)(qtc.y*height) >= 0
-			&& (int)(qtc.x*width) < width
-			&& (int)(qtc.y*height) < height){
-
-			int pixel = ((int)(qtc.x*width) + (int)(qtc.y*height)*width) * 3;
-			if (pixel >= height*width * 3)
-				pixel = height*width * 3 - 1;
-			if (pixel < 0) pixel = 0;
-			img[pixel + 2] = (unsigned char)mix_color[0];
-			img[pixel + 1] = (unsigned char)mix_color[1];
-			img[pixel + 0] = (unsigned char)mix_color[2];
-		}
-		else{
-			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf | qtc.x : %8.4lf qtc.y : %8.4lf\n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z,qtc.x,qtc.y);
-			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\n", tc1.x, tc1.y, tc2.x, tc2.y, tc3.x, tc3.y);
-		}
+		paintTriangle(img, mix_color, height, width, a, b, c);
+		
 		//free(dist);
-
-
 	}
 	fclose(fp);
 }
