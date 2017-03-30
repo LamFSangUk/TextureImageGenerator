@@ -83,8 +83,10 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 	double slope_bc = (double)(b.y - c.y) / (b.x - c.x);
 
 	int start = a.x, end = a.x;
+	//double start = a.x, end = a.x;
 	double candi1 = a.x, candi2 = a.x;
 	double slope_var = slope_ab;
+	
 	for (int i = a.y; i >= c.y; i--){
 		if (i == b.y) slope_var = slope_bc;
 		/*int j = start;
@@ -106,11 +108,15 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 		//printf("\n");
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
-		start = (int)(candi1 + 0.5);
-		end = (int)candi2;
+		start = floor(candi1);
+		end = ceil(candi2);
+		//start = candi1;
+		//end = candi2;
 		if (candi1 > candi2){
-			start = (int)(candi2 + 0.5);
-			end = (int)candi1;
+			start = floor(candi2);
+			end = ceil(candi1);
+			//start = candi2;
+			//end = candi1;
 		}
 	}
 }
@@ -132,7 +138,7 @@ void paintPicture(unsigned char *img,int width,int height){
 		Texture tc1, tc2, tc3, qtc;
 		Vertex qm, v1, v2, v3;
 		Normal nm, n1, n2, n3;
-		double alpha, beta, gamma;
+		//double alpha, beta, gamma;
 
 		NearestPoints np;
 
@@ -140,9 +146,9 @@ void paintPicture(unsigned char *img,int width,int height){
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
 		PointCoord a, b, c;
-		a.x = tc1.x*width; a.y = tc1.y*height;
-		b.x = tc2.x*width; b.y = tc2.y*height;
-		c.x = tc3.x*width; c.y = tc3.y*height;
+		a.x = (int)(tc1.x*width); a.y = (int)(tc1.y*height);
+		b.x = (int)(tc2.x*width); b.y = (int)(tc2.y*height);
+		c.x = (int)(tc3.x*width); c.y = (int)(tc3.y*height);
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -152,7 +158,7 @@ void paintPicture(unsigned char *img,int width,int height){
 		n2 = n[tm[i].p[1].normalidx - 1];
 		n3 = n[tm[i].p[2].normalidx - 1];
 
-		if ((a == b) || (b == c) || (a == c)){
+		/*if ((a == b) || (b == c) || (a == c)){
 			if (a == b){
 				np.pos[0] = v1.x;
 				np.pos[1] = v1.y;
@@ -168,23 +174,23 @@ void paintPicture(unsigned char *img,int width,int height){
 				np.pos[1] = v1.y;
 				np.pos[2] = v1.z;
 			}
-		}
-		else{
+		}*/
+		
 			//Calculate the barycentric point of three points on Texture Img(2nd dim)
-			qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
+			//qtc = getBarycentric(&alpha, &beta, &gamma, tc1, tc2, tc3);
 
 			//Calculate the barycentric point of three points on PointCloud(3rd dim)
-			qm.x = alpha*v1.x + beta*v2.x + gamma*v3.x;
-			qm.y = alpha*v1.y + beta*v2.y + gamma*v3.y;
-			qm.z = alpha*v1.z + beta*v2.z + gamma*v3.z;
+			qm.x = v1.x/3 + v2.x/3 + v3.x/3;
+			qm.y = v1.y/3 + v2.y/3 + v3.y/3;
+			qm.z = v1.z/3 + v2.z/3 + v3.z/3;
 
-			nm.x = alpha*n1.x + beta*n2.x + gamma*n3.x;
+			/*nm.x = alpha*n1.x + beta*n2.x + gamma*n3.x;
 			nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
-			nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;
+			nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;*/
 
 			np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
 			
-		}
+		
 		//Find 10 Nearest Neighbors.
 		np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
 		np.index = (const Point**)malloc(sizeof(Point*)*(npoints + 1));
@@ -198,19 +204,19 @@ void paintPicture(unsigned char *img,int width,int height){
 
 		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
-		//double sum_dist=0;
+		double sum_dist=0;
 		//double *dist;
 
 		//dist = (double*)malloc(sizeof(double)*(np.max+1));
 		//
 		//for (int i = 1; i <= np.found; i++){
-		//	dist[i] = getDist(np.pos, np.index[i]->pos);
-		//	sum_dist += dist[i];
+		////	dist[i] = getDist(np.pos, np.index[i]->pos);
+		//	sum_dist += np.dist2[i];
 		//}
 
 		//for (int i = 1; i <= np.found; i++){
 		//	for (int j = 0; j < 3;j++)
-		//		mix_color[j] += (int)((sum_dist - dist[i]) / sum_dist*np.index[i]->color[j]);
+		//		mix_color[j] += (int)((sum_dist - np.dist2[i]) / sum_dist*np.index[i]->color[j]);
 		//}
 
 		for (int i = 1; i <= np.found; i++){
@@ -225,7 +231,7 @@ void paintPicture(unsigned char *img,int width,int height){
 			mix_color[2] /= np.found;
 		}
 
-		if (mix_color[0] == 0 && mix_color[1] == 0 && mix_color[2] == 0){
+		if (np.found==0){
 			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf \n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z);
 			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\nnpfound:%d nppos %lf %lf %lf\n", a.x, a.y, b.x, b.y, c.x, c.y,np.found,np.pos[0],np.pos[1],np.pos[2]);
 		}

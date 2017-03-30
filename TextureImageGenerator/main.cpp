@@ -29,8 +29,8 @@ int main(void){
 	points_data.balance();
 
 	unsigned char *img;
-	int width=2048, height=1080;
-
+	int width=4096, height=2160;
+	//2048x1152
 	img = (unsigned char *)calloc(3 * width*height,1);
 
 	paintPicture(img, width, height);
