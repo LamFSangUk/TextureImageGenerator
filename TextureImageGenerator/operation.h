@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<cmath>
 #include"data.h"
-#include"pointmap.h"
+//#include"pointmap.h"
 
 #define Vector Vertex
 //#define PointCoord Texture

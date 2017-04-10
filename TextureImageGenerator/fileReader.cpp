@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include"data.h"
-#include"pointmap.h"
 
 using namespace std;
 
@@ -9,7 +8,7 @@ vector<Texture> t;
 vector<Normal> n;
 vector<TriangularMesh> tm;
 
-extern PointMap points_data;
+PointMap* points_data;
 
 void readObjFile(char* filename){
 	FILE *fp = fopen(filename, "r");
@@ -85,15 +84,53 @@ void readPointCloud(char* filename){
 			flag = 1;
 			continue;
 		}
-
-		if (flag == 0)
+		
+		if (flag == 0){
+			char *token=strtok(line, " ");
+			if (strcmp(token,"element")==0){
+				token=strtok(NULL, " ");
+				if (strcmp(token, "vertex") == 0){
+					token = strtok(NULL, " ");
+					int num_points=atoi(token);
+					points_data = new PointMap(num_points);
+				}
+			}
 			continue;
+		}
 
 		float pos[3], normal[3];
 		unsigned char color[6];
 		sscanf(line, "%f %f %f %f %f %f %d %d %d", &pos[0], &pos[1], &pos[2], &normal[0], &normal[1], &normal[2], &color[0], &color[1], &color[2]);
 
-		points_data.store((const float *)pos, (const float *)normal, (unsigned char*)color);
+		points_data->store((const float *)pos, (const float *)normal, (unsigned char*)color);
+	}
+
+	fclose(fp);
+}
+
+void readBinFile(char* filename){
+	FILE *fp = fopen(filename, "r");
+
+	if (fp == NULL){
+		printf("file open error\n");
+		return;
+	}
+
+	int num_points;
+	float pos[3], normal[3];
+	unsigned char color[6];
+
+	fread((int*)num_points, sizeof(int), 1, fp);
+
+	points_data = new PointMap(num_points);
+
+	for (int i = 0; i < num_points; i++){
+		fread(&num_points, sizeof(int), 1, fp);
+		fread(pos, sizeof(float), 3, fp);
+		fread(normal, sizeof(float), 3, fp);
+		fread(color, sizeof(unsigned char), 3, fp);
+
+		points_data->store((const float *)pos, (const float *)normal, (unsigned char*)color);
 	}
 
 	fclose(fp);

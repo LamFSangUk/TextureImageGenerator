@@ -1,7 +1,8 @@
 #ifndef __DATA_HEADER__
 #define __DATA_HEADER__
 
-#include<vector>
+#include <vector>
+#include "pointmap.h"
 using namespace std;
 
 typedef struct{
@@ -41,5 +42,7 @@ extern vector<Texture> t;
 extern vector<Normal> n;
 
 extern vector<TriangularMesh> tm;
+
+extern PointMap* points_data;
 
 #endif

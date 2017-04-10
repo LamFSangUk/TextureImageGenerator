@@ -1,5 +1,7 @@
 #include "operation.h"
 
+//PointMap* points_data;
+
 double SignedArea(const Texture& p, const Texture& q, const Texture& r){
 	double result;
 	Vector temp1, temp2, temp3;
@@ -109,21 +111,21 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
 		start = floor(candi1);
-		end = ceil(candi2);
-		//start = candi1;
-		//end = candi2;
+		//end = ceil(candi2);
+		//start = int(candi1+0.5);
+		end = int(candi2+0.5);
 		if (candi1 > candi2){
+			//start = int(candi2+0.5);
+			end = int(candi1+0.5);
 			start = floor(candi2);
-			end = ceil(candi1);
-			//start = candi2;
-			//end = candi1;
+			//end = ceil(candi1);
 		}
 	}
 }
 
 void paintPicture(unsigned char *img,int width,int height){
 
-	extern PointMap points_data;
+	//extern PointMap points_data;
 
 	FILE *fp = fopen("error.txt", "w");
 
@@ -146,9 +148,9 @@ void paintPicture(unsigned char *img,int width,int height){
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
 		PointCoord a, b, c;
-		a.x = (int)(tc1.x*width); a.y = (int)(tc1.y*height);
-		b.x = (int)(tc2.x*width); b.y = (int)(tc2.y*height);
-		c.x = (int)(tc3.x*width); c.y = (int)(tc3.y*height);
+		a.x = (int)(tc1.x*width + 0.5); a.y = (int)(tc1.y*height + 0.5);
+		b.x = (int)(tc2.x*width + 0.5); b.y = (int)(tc2.y*height + 0.5);
+		c.x = (int)(tc3.x*width + 0.5); c.y = (int)(tc3.y*height + 0.5);
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -200,7 +202,7 @@ void paintPicture(unsigned char *img,int width,int height){
 		np.got_heap = 0;
 		np.dist2[0] = max_dist*max_dist;
 
-		points_data.locate_points(&np, 1);
+		points_data->locate_points(&np, 1);
 
 		//calculate color : Just Average points' color
 		int mix_color[3] = { 0 };
