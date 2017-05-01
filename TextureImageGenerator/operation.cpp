@@ -103,6 +103,7 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 			if (pixel >= height*width * 3)
 				pixel = height*width * 3 - 1;
 			if (pixel < 0) pixel = 0;
+
 			img[pixel + 2] = (unsigned char)color[0];
 			img[pixel + 1] = (unsigned char)color[1];
 			img[pixel + 0] = (unsigned char)color[2];
@@ -111,14 +112,14 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
 		start = floor(candi1);
-		//end = ceil(candi2);
+		end = ceil(candi2);
 		//start = int(candi1+0.5);
-		end = int(candi2+0.5);
+		//end = int(candi2+0.5);
 		if (candi1 > candi2){
 			//start = int(candi2+0.5);
-			end = int(candi1+0.5);
+			//end = int(candi1+0.5);
 			start = floor(candi2);
-			//end = ceil(candi1);
+			end = ceil(candi1);
 		}
 	}
 }
@@ -204,24 +205,25 @@ void paintPicture(unsigned char *img,int width,int height){
 
 		points_data->locate_points(&np, 1);
 
-		//calculate color : Just Average points' color
+		//calculate color 
 		int mix_color[3] = { 0 };
-		double sum_dist=0;
-		//double *dist;
+		double sum_dist=0,avr_dist=0;
+		
 
-		//dist = (double*)malloc(sizeof(double)*(np.max+1));
-		//
-		//for (int i = 1; i <= np.found; i++){
-		////	dist[i] = getDist(np.pos, np.index[i]->pos);
-		//	sum_dist += np.dist2[i];
-		//}
-
-		//for (int i = 1; i <= np.found; i++){
-		//	for (int j = 0; j < 3;j++)
-		//		mix_color[j] += (int)((sum_dist - np.dist2[i]) / sum_dist*np.index[i]->color[j]);
-		//}
+		//Distance weighted 
+		for (int i = 1; i <= np.found; i++){
+		
+			sum_dist += np.dist2[i];
+		}
+		avr_dist = 2*sum_dist / np.found;
 
 		for (int i = 1; i <= np.found; i++){
+			for (int j = 0; j < 3;j++)
+				mix_color[j] += (int)(((avr_dist - np.dist2[i]) / sum_dist)*np.index[i]->color[j]);
+		}
+
+		//Just Average points' color
+		/*for (int i = 1; i <= np.found; i++){
 			mix_color[0] += np.index[i]->color[0];
 			mix_color[1] += np.index[i]->color[1];
 			mix_color[2] += np.index[i]->color[2];
@@ -231,7 +233,7 @@ void paintPicture(unsigned char *img,int width,int height){
 			mix_color[0] /= np.found;
 			mix_color[1] /= np.found;
 			mix_color[2] /= np.found;
-		}
+		}*/
 
 		if (np.found==0){
 			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf \n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z);
