@@ -24,6 +24,13 @@ Vector CrossProduct(Vector a,Vector b){
 
 	return vec;
 }
+
+double DotProduct(Normal a, const double *b){
+	double ret = a.x*b[0] + a.y*b[1] + a.z*b[2];
+	//if (ret < 0) ret *= -1;
+	return ret;
+}
+
 Vector TextureSubstraction(const Texture& a, const Texture& b){
 	Vector vec;
 	vec.x = a.x - b.x;
@@ -61,24 +68,8 @@ double getDist(const float *p1,const float *p2){
 }
 
 
-void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord a, PointCoord b, PointCoord c){
-	//Sort by y-coord
-	PointCoord temp;
-	if (a.y < b.y){
-		temp = a;
-		a = b;
-		b = temp;
-	}
-	if (b.y < c.y){
-		temp = b;
-		b = c;
-		c = temp;
-	}
-	if (a.y < b.y){
-		temp = a;
-		a = b;
-		b = temp;
-	}
+void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int width,PointCoord a, PointCoord b, PointCoord c){
+	
 
 	double slope_ac = (double)(a.y - c.y) / (a.x - c.x);//delta x=1/slope
 	double slope_ab = (double)(a.y - b.y) / (a.x - b.x);
@@ -104,34 +95,45 @@ void paintTriangle(unsigned char *img,int* color,int height,int width,PointCoord
 				pixel = height*width * 3 - 1;
 			if (pixel < 0) pixel = 0;
 
-			img[pixel + 2] = (unsigned char)color[0];
-			img[pixel + 1] = (unsigned char)color[1];
-			img[pixel + 0] = (unsigned char)color[2];
+			if (i>=0 && i<height && j>=0 && j<width && !imgflag[j+i*width]){
+				img[pixel + 2] = (unsigned char)color[0];
+				img[pixel + 1] = (unsigned char)color[1];
+				img[pixel + 0] = (unsigned char)color[2];
+				imgflag[j+i*width] = true;//ADDED 5.1.
+			}
 		}
 		//printf("\n");
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
-		start = floor(candi1);
+		//start = floor(candi1);
+		//if (candi1 - start >= 0.9) start += 1;
+		//end = ceil(candi2);
+		//if (end - candi2 >= 0.9) end -= 1;*/
+		//start = int(candi1-1);
+		//end = int(candi2+1);
+		start = int(candi1 + 0.5);
 		end = ceil(candi2);
-		//start = int(candi1+0.5);
-		//end = int(candi2+0.5);
+
 		if (candi1 > candi2){
-			//start = int(candi2+0.5);
-			//end = int(candi1+0.5);
-			start = floor(candi2);
+			//start = int(candi2-1);
+			//end = int(candi1+1);
+			///start = floor(candi2);
+			//if (candi2 - start >= 0.9) start += 1;
+			start = int(candi2 + 0.5);
 			end = ceil(candi1);
+			//if (end - candi1 >= 0.9) end -= 1;*/
 		}
 	}
 }
 
-void paintPicture(unsigned char *img,int width,int height){
+void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 
 	//extern PointMap points_data;
 
 	FILE *fp = fopen("error.txt", "w");
 
-	float max_dist = 10000.0;
-	int npoints = 20;
+	float max_dist = 100.0;
+	int npoints = 100;
 
 	int i, len;
 
@@ -148,10 +150,61 @@ void paintPicture(unsigned char *img,int width,int height){
 		tc1 = t[tm[i].p[0].textureidx - 1];
 		tc2 = t[tm[i].p[1].textureidx - 1];
 		tc3 = t[tm[i].p[2].textureidx - 1];
-		PointCoord a, b, c;
-		a.x = (int)(tc1.x*width + 0.5); a.y = (int)(tc1.y*height + 0.5);
-		b.x = (int)(tc2.x*width + 0.5); b.y = (int)(tc2.y*height + 0.5);
-		c.x = (int)(tc3.x*width + 0.5); c.y = (int)(tc3.y*height + 0.5);
+
+		//Sort by x-coord
+		Texture temp;
+		PointCoord a, b, c,tempc;
+		if (tc1.x < tc2.x){
+			temp = tc1;
+			tc1 = tc2;
+			tc2 = temp;
+		}
+		if (tc2.x < tc3.x){
+			temp = tc2;
+			tc2 = tc3;
+			tc3 = temp;
+		}
+		if (tc1.x < tc2.x){
+			temp = tc1;
+			tc1 = tc2;
+			tc2 = temp;
+		}
+		a.x = ceil(tc1.x*width);
+		b.x = int(tc2.x*width + 0.5);
+		c.x = floor(tc3.x*width);
+
+		//Sort by y-coord
+		if (tc1.y < tc2.y){
+			temp = tc1;
+			tc1 = tc2;
+			tc2 = temp;
+			
+			tempc = a;
+			a = b;
+			b = tempc;
+		}
+		if (tc2.y < tc3.y){
+			temp = tc2;
+			tc2 = tc3;
+			tc3 = temp;
+
+			tempc = b;
+			b = c;
+			c = tempc;
+		}
+		if (tc1.y < tc2.y){
+			temp = tc1;
+			tc1 = tc2;
+			tc2 = temp;
+
+			tempc = a;
+			a = b;
+			b = tempc;
+		}
+		
+		a.y = ceil(tc1.y*height);
+		b.y = int(tc2.y*height+0.5);
+		c.y = floor(tc3.y*height);
 
 		v1 = v[tm[i].p[0].vertexidx - 1];
 		v2 = v[tm[i].p[1].vertexidx - 1];
@@ -191,6 +244,13 @@ void paintPicture(unsigned char *img,int width,int height){
 			nm.y = alpha*n1.y + beta*n2.y + gamma*n3.y;
 			nm.z = alpha*n1.z + beta*n2.z + gamma*n3.z;*/
 
+			nm.x = (n1.x + n2.x + n3.x) / 3;
+			nm.y = (n1.y + n2.y + n3.y) / 3;
+			nm.z = (n1.z + n2.z + n3.z) / 3;
+			//normalize
+			double mag = nm.x*nm.x + nm.y*nm.y + nm.z*nm.z;
+			nm.x /= mag; nm.y /= mag; nm.z /= mag;
+
 			np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
 			
 		
@@ -206,21 +266,29 @@ void paintPicture(unsigned char *img,int width,int height){
 		points_data->locate_points(&np, 1);
 
 		//calculate color 
+		float sum_color[3] = { 0 };
 		int mix_color[3] = { 0 };
 		double sum_dist=0,avr_dist=0;
-		
+		double sum_dot = 0,avr_dot=0;
 
 		//Distance weighted 
 		for (int i = 1; i <= np.found; i++){
 		
 			sum_dist += np.dist2[i];
+			sum_dot += DotProduct(nm, np.index[i]->normal);
 		}
 		avr_dist = 2*sum_dist / np.found;
+		avr_dot = 2*sum_dot / np.found;
 
 		for (int i = 1; i <= np.found; i++){
 			for (int j = 0; j < 3;j++)
-				mix_color[j] += (int)(((avr_dist - np.dist2[i]) / sum_dist)*np.index[i]->color[j]);
+				sum_color[j] += ((avr_dist - np.dist2[i]) / sum_dist)
+								*(DotProduct(nm, np.index[i]->normal))*(DotProduct(nm, np.index[i]->normal))
+								//((avr_dot-DotProduct(nm, np.index[i]->normal))/sum_dot)
+								* np.index[i]->color[j];
 		}
+		
+		for (int j = 0; j < 3; j++) mix_color[j] = (int)sum_color[j];
 
 		//Just Average points' color
 		/*for (int i = 1; i <= np.found; i++){
@@ -240,9 +308,11 @@ void paintPicture(unsigned char *img,int width,int height){
 			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\nnpfound:%d nppos %lf %lf %lf\n", a.x, a.y, b.x, b.y, c.x, c.y,np.found,np.pos[0],np.pos[1],np.pos[2]);
 		}
 		//paint color to img arr
-		paintTriangle(img, mix_color, height, width, a, b, c);
+		paintTriangle(img, imgflag, mix_color, height, width, a, b, c);
 		
 		//free(dist);
+		free(np.dist2);
+		free(np.index);
 	}
 	fclose(fp);
 }

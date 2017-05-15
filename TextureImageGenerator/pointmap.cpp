@@ -36,9 +36,10 @@ void PointMap::store(const float pos[3], const float normal[3], unsigned char co
 			bbox_max[i] = node->pos[i];
 
 		node->color[i] = color[i];
+		node->normal[i] = normal[i];
 	}
 
-	int theta = int(acos(normal[2])*(256.0 / M_PI));
+	/*int theta = int(acos(normal[2])*(256.0 / M_PI));
 	if (theta > 255)
 		node->theta = 255;
 	else
@@ -51,6 +52,7 @@ void PointMap::store(const float pos[3], const float normal[3], unsigned char co
 		node->phi = (unsigned char)(phi + 256);
 	else
 		node->phi = (unsigned char)phi;
+		*/
 }
 
 void PointMap::balance(void)

@@ -32,11 +32,13 @@ int main(void){
 	points_data->balance();
 
 	unsigned char *img;
+	bool *imgflag;
 	int width=1920, height=1080;
 	//2048x1152//1920*1080//4096*2160
 	img = (unsigned char *)calloc(3 * width*height,1);
+	imgflag = (bool*)calloc(width*height, sizeof(bool));
 
-	paintPicture(img, width, height);
+	paintPicture(img, imgflag, width, height);
 
 	//Create BMP image file, and write img arr to it.
 	makeBmpImage(width, height, img);

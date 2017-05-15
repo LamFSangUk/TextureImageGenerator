@@ -10,7 +10,8 @@
 typedef struct Point{
 	float pos[3];
 	short plane;
-	unsigned char theta,phi;
+	//unsigned char theta,phi;
+	double normal[3];
 	unsigned char color[3];
 }Point;
 
