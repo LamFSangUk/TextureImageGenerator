@@ -9,8 +9,7 @@ void readObjFile(char* filename);
 void readPointCloud(char* filename);
 void readBinFile(char* filename);
 
-//PointMap points_data(3050641);
-//PointMap* points_data;
+PointMap* points_data;
 
 int main(void){
 
@@ -33,8 +32,9 @@ int main(void){
 
 	unsigned char *img;
 	bool *imgflag;
-	int width=1920, height=1080;
-	//2048x1152//1920*1080//4096*2160
+	int width, height;
+	width = height = 1024;
+	//2048x1152//1920*1080//1280x720//4096*2160
 	img = (unsigned char *)calloc(3 * width*height,1);
 	imgflag = (bool*)calloc(width*height, sizeof(bool));
 

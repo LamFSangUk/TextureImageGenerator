@@ -39,20 +39,6 @@ void PointMap::store(const float pos[3], const float normal[3], unsigned char co
 		node->normal[i] = normal[i];
 	}
 
-	/*int theta = int(acos(normal[2])*(256.0 / M_PI));
-	if (theta > 255)
-		node->theta = 255;
-	else
-		node->theta = (unsigned char)theta;
-
-	int phi = int(atan2(normal[1], normal[0])*(256.0 / (2.0*M_PI)));
-	if (phi > 255)
-		node->phi = 255;
-	else if (phi < 0)
-		node->phi = (unsigned char)(phi + 256);
-	else
-		node->phi = (unsigned char)phi;
-		*/
 }
 
 void PointMap::balance(void)

@@ -5,6 +5,7 @@
 #include "pointmap.h"
 using namespace std;
 
+/* data sturcture to save Point's Information*/
 typedef struct{
 	double x, y, z;
 }Vertex;
@@ -40,9 +41,7 @@ typedef struct{
 extern vector<Vertex> v;
 extern vector<Texture> t;
 extern vector<Normal> n;
-
 extern vector<TriangularMesh> tm;
-
 extern PointMap* points_data;
 
 #endif

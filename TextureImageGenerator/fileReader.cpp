@@ -8,8 +8,9 @@ vector<Texture> t;
 vector<Normal> n;
 vector<TriangularMesh> tm;
 
-PointMap* points_data;
-
+/*	Name: readObjFile
+	read obj file data *.obj
+*/
 void readObjFile(char* filename){
 	FILE *fp = fopen(filename, "r");
 
@@ -67,6 +68,9 @@ void readObjFile(char* filename){
 	fclose(fp);
 }
 
+/*	Name: readPointCloud
+	read pointcloud file data *.ply
+*/
 void readPointCloud(char* filename){
 	FILE *fp = fopen(filename, "r");
 
@@ -108,6 +112,9 @@ void readPointCloud(char* filename){
 	fclose(fp);
 }
 
+/*	Name: readBinFile
+	read pointcloud binary file data *.bin
+*/
 void readBinFile(char* filename){
 	FILE *fp = fopen(filename, "rb");
 
@@ -124,22 +131,14 @@ void readBinFile(char* filename){
 	fread(&num_points, sizeof(int), 1, fp);
 
 	points_data = new PointMap(num_points);
-	printf("points:%d\n", num_points);
 
 	for (int i = 0; i < num_points; i++){
-		//fread(&num_points, sizeof(int), 1, fp);
+		
 		fread(pos, sizeof(float), 3, fp);
 		fread(normal, sizeof(float), 3, fp);
 		fread(_color, sizeof(float), 3, fp);
-	//	fread(&color[1], sizeof(unsigned char), 1, fp);
-	//	fread(&color[0], sizeof(unsigned char), 1, fp);
 		fread(&temp, sizeof(float), 1, fp);
 
-		if (i == 0){
-			printf("pos: %f %f %f\n", pos[0], pos[1], pos[2]);
-			printf("%f %f %f %u\n", _color[0], _color[1], _color[2]);
-
-		}
 		for (int j = 0; j < 3; j++) color[j] = (unsigned char)(_color[j]*255);
 		points_data->store((const float *)pos, (const float *)normal, (unsigned char*)color);
 	}
