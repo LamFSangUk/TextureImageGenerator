@@ -10,5 +10,6 @@
 double DotProduct(Normal, const double *);
 void paintTriangle(unsigned char *,bool *, int*, int, int, PointCoord a, PointCoord b, PointCoord c);
 void paintPicture(unsigned char *,bool *, int, int);
+void imgKernel(unsigned char *, bool*,int,int);
 
 #endif

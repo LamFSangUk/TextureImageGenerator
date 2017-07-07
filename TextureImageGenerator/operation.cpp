@@ -197,3 +197,48 @@ void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 	}
 	fclose(fp);
 }
+
+void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
+	unsigned char*imgcover;
+	imgcover = (unsigned char *)calloc(3 * (width+1)*(height+1), 1);
+
+	for (int i = 1; i < height+1; i++){
+		for (int j = 1; j < width + 1; j++){
+			imgcover[3*(i*width + j)+0] = img[3*((i - 1)*width + j - 1)+0];//*3ÇØ¾ß´ï
+			imgcover[3 * (i*width + j) + 1] = img[3 * ((i - 1)*width + j - 1) + 1];
+			imgcover[3 * (i*width + j) + 2] = img[3 * ((i - 1)*width + j - 1) + 2];
+		}
+	}
+
+	int kernel[3][3] = {
+		1, 1, 1,
+		1, 0, 0,
+		0, 0, 0
+	};
+
+	for (int i = 1; i < height + 1; i++){
+		for (int j = 1; j < width + 1; j++){
+			if (!imgflag[(i - 1)*width + j - 1]){
+				int color_sum[3] = { 0 };
+				for (int k = 0; k < 3; k++){
+					for (int l = 0; l < 3; l++){
+						color_sum[0]+=imgcover[3*((i-1+k)*width+(j-1+l))+0]*kernel[k][l];
+						color_sum[1] += imgcover[3 * ((i - 1 + k)*width + (j - 1 + l)) + 1] * kernel[k][l];
+						color_sum[2] += imgcover[3 * ((i - 1 + k)*width + (j - 1 + l)) + 2] * kernel[k][l];
+					}
+				}
+				imgcover[3 * (i*width + j) + 0] = 1.0 / 4.0 * color_sum[0];
+				imgcover[3 * (i*width + j) + 1] = 1.0 / 4.0 * color_sum[1];
+				imgcover[3 * (i*width + j) + 2] = 1.0 / 4.0 * color_sum[2];
+			}
+		}
+	}
+
+	for (int i = 1; i < height + 1; i++){
+		for (int j = 1; j < width + 1; j++){
+			img[3*((i - 1)*width + j - 1)+0] = imgcover[3*(i*width + j)+0];
+			img[3 * ((i - 1)*width + j - 1) + 1] = imgcover[3 * (i*width + j) + 1];
+			img[3 * ((i - 1)*width + j - 1) + 2] = imgcover[3 * (i*width + j) + 2];
+		}
+	}
+}

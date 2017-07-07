@@ -33,12 +33,14 @@ int main(void){
 	unsigned char *img;
 	bool *imgflag;
 	int width, height;
-	width = height = 1024;
+	width = height = 2048;
 	//2048x1152//1920*1080//1280x720//4096*2160
 	img = (unsigned char *)calloc(3 * width*height,1);
 	imgflag = (bool*)calloc(width*height, sizeof(bool));
 
 	paintPicture(img, imgflag, width, height);
+
+	imgKernel(img, imgflag, width, height);
 
 	//Create BMP image file, and write img arr to it.
 	makeBmpImage(width, height, img);
