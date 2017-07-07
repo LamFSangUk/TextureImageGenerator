@@ -40,12 +40,12 @@ void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int wid
 		candi2 = candi2 - 1 / slope_var;
 
 		start = int(candi1 + 0.5);
-		end = ceil(candi2);
+		end = int(candi2 + 0.5);
 
 		if (candi1 > candi2){
 
 			start = int(candi2 + 0.5);
-			end = ceil(candi1);
+			end = int(candi1 + 0.5);
 		}
 	}
 }
@@ -79,59 +79,61 @@ void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 		n2 = n[tm[i].p[1].normalidx - 1];
 		n3 = n[tm[i].p[2].normalidx - 1];
 
-		//Sort by x-coord
+		////Sort by x-coord
 		Texture temp;
 		PointCoord a, b, c, tempc;
-		if (tc1.x < tc2.x){
-			temp = tc1;
-			tc1 = tc2;
-			tc2 = temp;
-		}
-		if (tc2.x < tc3.x){
-			temp = tc2;
-			tc2 = tc3;
-			tc3 = temp;
-		}
-		if (tc1.x < tc2.x){
-			temp = tc1;
-			tc1 = tc2;
-			tc2 = temp;
-		}
-		a.x = ceil(tc1.x*width);
-		b.x = int(tc2.x*width + 0.5);
-		c.x = floor(tc3.x*width);
-
+		//if (tc1.x < tc2.x){
+		//	temp = tc1;
+		//	tc1 = tc2;
+		//	tc2 = temp;
+		//}
+		//if (tc2.x < tc3.x){
+		//	temp = tc2;
+		//	tc2 = tc3;
+		//	tc3 = temp;
+		//}
+		//if (tc1.x < tc2.x){
+		//	temp = tc1;
+		//	tc1 = tc2;
+		//	tc2 = temp;
+		//}
+		
+		
 		//Sort by y-coord
 		if (tc1.y < tc2.y){
 			temp = tc1;
 			tc1 = tc2;
 			tc2 = temp;
 			
-			tempc = a;
+			/*tempc = a;
 			a = b;
-			b = tempc;
+			b = tempc;*/
 		}
 		if (tc2.y < tc3.y){
 			temp = tc2;
 			tc2 = tc3;
 			tc3 = temp;
 
-			tempc = b;
+			/*tempc = b;
 			b = c;
-			c = tempc;
+			c = tempc;*/
 		}
 		if (tc1.y < tc2.y){
 			temp = tc1;
 			tc1 = tc2;
 			tc2 = temp;
 
-			tempc = a;
+			/*tempc = a;
 			a = b;
-			b = tempc;
+			b = tempc;*/
 		}
-		a.y = ceil(tc1.y*height);
+		a.x = int(tc1.x*width + 0.5);
+		b.x = int(tc2.x*width + 0.5);
+		c.x = int(tc3.x*width + 0.5);
+
+		a.y = int(tc1.y*height + 0.5);
 		b.y = int(tc2.y*height+0.5);
-		c.y = floor(tc3.y*height);
+		c.y = int(tc3.y*height + 0.5);
 
 
 		//Calculate the barycentric point of three points on PointCloud(3rd dim)
@@ -181,8 +183,13 @@ void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 								*(DotProduct(nm, np.index[i]->normal))*(DotProduct(nm, np.index[i]->normal))
 								* np.index[i]->color[j];
 		}
+
 		
-		for (int j = 0; j < 3; j++) mix_color[j] = (int)sum_color[j];
+		
+		for (int j = 0; j < 3; j++){
+			if (sum_color[j]>255) sum_color[j] = 255;
+			mix_color[j] = (int)sum_color[j];
+		}
 
 		if (np.found==0){//For Debug
 			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf \n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z);
@@ -204,16 +211,18 @@ void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
 
 	for (int i = 1; i < height+1; i++){
 		for (int j = 1; j < width + 1; j++){
-			imgcover[3*(i*width + j)+0] = img[3*((i - 1)*width + j - 1)+0];//*3해야댐
+			imgcover[3*(i*width + j)+0] = img[3*((i - 1)*width + j - 1)+0];
 			imgcover[3 * (i*width + j) + 1] = img[3 * ((i - 1)*width + j - 1) + 1];
 			imgcover[3 * (i*width + j) + 2] = img[3 * ((i - 1)*width + j - 1) + 2];
 		}
 	}
 
+	//TODO: 조금 더 좋은방법없을까..?
+
 	int kernel[3][3] = {
 		1, 1, 1,
-		1, 0, 0,
-		0, 0, 0
+		1, 0, 1,
+		1, 1, 1
 	};
 
 	for (int i = 1; i < height + 1; i++){
@@ -227,9 +236,9 @@ void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
 						color_sum[2] += imgcover[3 * ((i - 1 + k)*width + (j - 1 + l)) + 2] * kernel[k][l];
 					}
 				}
-				imgcover[3 * (i*width + j) + 0] = 1.0 / 4.0 * color_sum[0];
-				imgcover[3 * (i*width + j) + 1] = 1.0 / 4.0 * color_sum[1];
-				imgcover[3 * (i*width + j) + 2] = 1.0 / 4.0 * color_sum[2];
+				imgcover[3 * (i*width + j) + 0] = 1.0 / 8.0 * color_sum[0];
+				imgcover[3 * (i*width + j) + 1] = 1.0 / 8.0 * color_sum[1];
+				imgcover[3 * (i*width + j) + 2] = 1.0 / 8.0 * color_sum[2];
 			}
 		}
 	}

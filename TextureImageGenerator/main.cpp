@@ -33,7 +33,7 @@ int main(void){
 	unsigned char *img;
 	bool *imgflag;
 	int width, height;
-	width = height = 2048;
+	width = height = 1024;
 	//2048x1152//1920*1080//1280x720//4096*2160
 	img = (unsigned char *)calloc(3 * width*height,1);
 	imgflag = (bool*)calloc(width*height, sizeof(bool));
