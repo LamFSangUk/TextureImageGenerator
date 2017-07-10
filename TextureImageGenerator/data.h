@@ -15,7 +15,7 @@ typedef struct{
 }Normal;
 
 typedef struct{
-	double x, y;
+	int x, y;
 }Texture;
 
 typedef struct PointCoord{
@@ -34,14 +34,17 @@ typedef struct{
 	int textureidx;
 }PointIdx;
 
+// Save the three points that are triagular's vertices
 typedef struct{
 	PointIdx p[3];
 }TriangularMesh;
 
-extern vector<Vertex> v;
-extern vector<Texture> t;
-extern vector<Normal> n;
-extern vector<TriangularMesh> tm;
+extern vector<Vertex> vertex_list;			// list for vertices
+extern vector<Texture> texture_list;		// list for texture coordinates
+extern vector<Normal> normal_list;			// list for point's normal vector
+extern vector<TriangularMesh> trimesh_list;	// list for triangular mesh data
+
+// Kd-tree for points
 extern PointMap* points_data;
 
 #endif

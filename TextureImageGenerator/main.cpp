@@ -27,14 +27,14 @@ int main(void){
 
 
 	printf("******************* TEXTURE GENERATOR ********************\n");
+	//Input the filename
+	printf("input the file name : ");
+	scanf("%s", filename);
+
 	if (CHECK_TIME){
 		tStart = tPrev = clock();
 		printf("\t- START measuring execution time\n");
 	}
-
-	//Input the filename
-	printf("input the obj file name : ");
-	scanf("%s", filename);
 
 	strcpy(_objfilename, filename);
 	strcpy(_plyfilename, filename);
@@ -68,21 +68,22 @@ int main(void){
 		tPrev = clock();
 	}
 
-	unsigned char *img_res;
-	bool *img_flag;
-	int width, height;
-	width = height = 1024;
+	unsigned char *img_res;		// To Save the result img arr.
+	bool *img_flag;				// To Check whether visit the point in img arr.
+	int img_width, img_height;
+	img_width = img_height = 1024;
 	//2048x1152//1920*1080//1280x720//4096*2160
-	img_res = (unsigned char *)calloc(3 * width*height,1);
-	img_flag = (bool*)calloc(width*height, sizeof(bool));
 
-	paintPicture(img_res, img_flag, width, height);
+	img_res = (unsigned char *)calloc(3 * img_width*img_height,1);
+	img_flag = (bool*)calloc(img_width*img_height, sizeof(bool));
+
+	paintImage(img_res, img_flag, img_width, img_height);
 	if (CHECK_TIME){
 		printf("\t- Painting the Texture img in %.2fs\n", (double)(clock() - tPrev) / CLOCKS_PER_SEC);
 		tPrev = clock();
 	}
 
-	imgKernel(img_res, img_flag, width, height);
+	imgKernel(img_res, img_flag, img_width, img_height);
 	if (CHECK_TIME){
 		printf("\t- After processing with texture img in %.2fs\n", (double)(clock() - tPrev) / CLOCKS_PER_SEC);
 		tPrev = clock();
@@ -90,7 +91,7 @@ int main(void){
 
 
 	//Create BMP image file, and write img_res arr to it.
-	makeBmpImage(width, height, img_res);
+	createBmpImage(img_width, img_height, img_res);
 	printf("******************* GENERATE BMP IMAGE *******************\n");
 	if (CHECK_TIME){
 		printf("\t- Generate the target bmp file in %.2fs\n", (double)(clock() - tPrev) / CLOCKS_PER_SEC);

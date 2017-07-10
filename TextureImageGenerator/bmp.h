@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void makeBmpImage(int w, int h,unsigned char *img){
+void createBmpImage(int w, int h,unsigned char *img){
 
 	FILE *f;
 	int filesize = 54 + 3 * w*h;  //w is your image width, h is image height, both int

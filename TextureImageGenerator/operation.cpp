@@ -50,7 +50,7 @@ void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int wid
 	}
 }
 
-void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
+void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 
 	FILE *fp = fopen("error.txt", "w");
 
@@ -58,7 +58,7 @@ void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 	float max_dist = 100.0;
 	int npoints = 100;
 
-	len = tm.size();
+	len = trimesh_list.size();
 
 	for (i = 0; i < len; i++){
 		Texture tc1, tc2, tc3, qtc;
@@ -67,72 +67,43 @@ void paintPicture(unsigned char *img,bool* imgflag,int width,int height){
 
 		NearestPoints np;
 
-		tc1 = t[tm[i].p[0].textureidx - 1];
-		tc2 = t[tm[i].p[1].textureidx - 1];
-		tc3 = t[tm[i].p[2].textureidx - 1];
+		tc1 = texture_list[trimesh_list[i].p[0].textureidx - 1];
+		tc2 = texture_list[trimesh_list[i].p[1].textureidx - 1];
+		tc3 = texture_list[trimesh_list[i].p[2].textureidx - 1];
 
-		v1 = v[tm[i].p[0].vertexidx - 1];
-		v2 = v[tm[i].p[1].vertexidx - 1];
-		v3 = v[tm[i].p[2].vertexidx - 1];
+		v1 = vertex_list[trimesh_list[i].p[0].vertexidx - 1];
+		v2 = vertex_list[trimesh_list[i].p[1].vertexidx - 1];
+		v3 = vertex_list[trimesh_list[i].p[2].vertexidx - 1];
 
-		n1 = n[tm[i].p[0].normalidx - 1];
-		n2 = n[tm[i].p[1].normalidx - 1];
-		n3 = n[tm[i].p[2].normalidx - 1];
+		n1 = normal_list[trimesh_list[i].p[0].normalidx - 1];
+		n2 = normal_list[trimesh_list[i].p[1].normalidx - 1];
+		n3 = normal_list[trimesh_list[i].p[2].normalidx - 1];
 
-		////Sort by x-coord
 		Texture temp;
 		PointCoord a, b, c, tempc;
-		//if (tc1.x < tc2.x){
-		//	temp = tc1;
-		//	tc1 = tc2;
-		//	tc2 = temp;
-		//}
-		//if (tc2.x < tc3.x){
-		//	temp = tc2;
-		//	tc2 = tc3;
-		//	tc3 = temp;
-		//}
-		//if (tc1.x < tc2.x){
-		//	temp = tc1;
-		//	tc1 = tc2;
-		//	tc2 = temp;
-		//}
-		
-		
+				
 		//Sort by y-coord
 		if (tc1.y < tc2.y){
 			temp = tc1;
 			tc1 = tc2;
 			tc2 = temp;
-			
-			/*tempc = a;
-			a = b;
-			b = tempc;*/
 		}
 		if (tc2.y < tc3.y){
 			temp = tc2;
 			tc2 = tc3;
 			tc3 = temp;
-
-			/*tempc = b;
-			b = c;
-			c = tempc;*/
 		}
 		if (tc1.y < tc2.y){
 			temp = tc1;
 			tc1 = tc2;
 			tc2 = temp;
-
-			/*tempc = a;
-			a = b;
-			b = tempc;*/
 		}
 		a.x = int(tc1.x*width + 0.5);
 		b.x = int(tc2.x*width + 0.5);
 		c.x = int(tc3.x*width + 0.5);
 
 		a.y = int(tc1.y*height + 0.5);
-		b.y = int(tc2.y*height+0.5);
+		b.y = int(tc2.y*height + 0.5);
 		c.y = int(tc3.y*height + 0.5);
 
 

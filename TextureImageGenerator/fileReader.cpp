@@ -3,10 +3,10 @@
 
 using namespace std;
 
-vector<Vertex> v;
-vector<Texture> t;
-vector<Normal> n;
-vector<TriangularMesh> tm;
+vector<Vertex> vertex_list;
+vector<Texture> texture_list;
+vector<Normal> normal_list;
+vector<TriangularMesh> trimesh_list;
 
 /*	Name: readObjFile
 	read obj file data *.obj
@@ -27,17 +27,17 @@ void readObjFile(char* filename){
 			if (line[1] == 't'){
 				Texture temp;
 				sscanf(line, "%*s %lf %lf", &temp.x, &temp.y);
-				t.push_back(temp);
+				texture_list.push_back(temp);
 			}
 			else if (line[1] == 'n'){
 				Normal temp;
 				sscanf(line, "%*s %lf %lf %lf", &temp.x, &temp.y, &temp.z);
-				n.push_back(temp);
+				normal_list.push_back(temp);
 			}
 			else{
 				Vertex temp;
 				sscanf(line, "%*s %lf %lf %lf", &temp.x, &temp.y, &temp.z);
-				v.push_back(temp);
+				vertex_list.push_back(temp);
 			}
 		}
 		else if (line[0] == 'f'){
@@ -45,11 +45,11 @@ void readObjFile(char* filename){
 			char secondpoint[100];
 			char thirdpoint[100];
 
-			int vidx[3];//for vertex index
-			int vtidx[3];//for texture index
-			int vnidx[3];//for normal index
+			int vidx[3];	// for vertex index
+			int vtidx[3];	// for texture index
+			int vnidx[3];	// for normal index
 
-			TriangularMesh temp;
+			TriangularMesh tm;
 
 			sscanf(line, "%*s %s %s %s", firstpoint,secondpoint,thirdpoint);
 			sscanf(firstpoint, "%d%*c%d%*c%d", &vidx[0], &vtidx[0], &vnidx[0]);
@@ -57,11 +57,11 @@ void readObjFile(char* filename){
 			sscanf(thirdpoint, "%d%*c%d%*c%d", &vidx[2], &vtidx[2], &vnidx[2]);
 
 			for (int i = 0; i < 3; i++){
-				temp.p[i].vertexidx = vidx[i];
-				temp.p[i].normalidx = vnidx[i];
-				temp.p[i].textureidx = vtidx[i];
+				tm.p[i].vertexidx = vidx[i];
+				tm.p[i].normalidx = vnidx[i];
+				tm.p[i].textureidx = vtidx[i];
 			}
-			tm.push_back(temp);
+			trimesh_list.push_back(tm);
 		}
 	}
 
