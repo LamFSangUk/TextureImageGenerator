@@ -79,8 +79,6 @@ void PointMap::balance(void)
 		}
 		free(pa1);
 	}
-
-	//half_stored_photons = stored_photons / 2 - 1;
 }
 
 void PointMap::balance_segment(Point **pbal, Point **porg, const int index, const int start, const int end){

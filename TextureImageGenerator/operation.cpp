@@ -251,3 +251,4 @@ void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
 		}
 	}
 }
+
