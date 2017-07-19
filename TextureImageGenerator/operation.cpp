@@ -7,8 +7,28 @@ double DotProduct(Normal a, const double *b){
 }
 
 
+/*	
+	Name: paintTriangle
+	Paint proper color inside triangle.
+	From Known three points, calculate the slope of vector.
+	Using these slope, get the start & end point line by line.
+	From start point to end point, Paint the average color.(From A,B,C points)
+*/
 void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int width,PointCoord a, PointCoord b, PointCoord c){
-	
+	/*
+	Input data: Trinagle from A,B,C vertex
+	..............A.........................		.......................A................
+	................#.......................		.........................#..............
+	...............#.##.....................		.......................##.#.............
+	..............#....##...................		.....................##....#............
+	.............#.......##.................   OR	...................##.......#...........
+	............#..........##...............		.................##..........#..........
+	.........B..########.....##.............		...............##.....#######..B........
+	....................########............		..............########..................
+	.............................C..........		............C...........................
+
+	There exists only two shapes of triangle, because we sorted PointCoord a b c by y-value.
+	*/
 
 	double slope_ac = (double)(a.y - c.y) / (a.x - c.x);//delta x=1/slope
 	double slope_ab = (double)(a.y - b.y) / (a.x - b.x);
@@ -19,26 +39,33 @@ void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int wid
 	double slope_var = slope_ab;
 	
 	for (int i = a.y; i >= c.y; i--){
-		if (i == b.y) slope_var = slope_bc;
+		//Paint line by line.
+
+		if (i == b.y) slope_var = slope_bc;//Change the slope value if it paints end line of f
 
 		for (int j = start; j <= end; j++){
-			
-			int pixel = (j + i*width)*3;
-			if (pixel >= height*width * 3)
-				pixel = height*width * 3 - 1;
+			//Paint from start to end point in line.
+
+			int pixel = (j + i * width) * 3;
+			if (pixel >= height * width * 3)
+				pixel = height * width * 3 - 1;
 			if (pixel < 0) pixel = 0;
 
 			if (i>=0 && i<height && j>=0 && j<width && !imgflag[j+i*width]){
+				//R G B to B G R
 				img[pixel + 2] = (unsigned char)color[0];
 				img[pixel + 1] = (unsigned char)color[1];
 				img[pixel + 0] = (unsigned char)color[2];
-				imgflag[j+i*width] = true;//ADDED 5.1.
+				imgflag[j+i*width] = true;
 			}
 		}
 
+		//Candi1, Candi2 are candidates of start or end points.
+		//Candi1, Candi2 has only x-coordinate.
 		candi1 = candi1 - 1 / slope_ac;
 		candi2 = candi2 - 1 / slope_var;
 
+		//Set the smaller value to start point.
 		start = int(candi1 + 0.5);
 		end = int(candi2 + 0.5);
 
@@ -50,23 +77,28 @@ void paintTriangle(unsigned char *img,bool*imgflag,int* color,int height,int wid
 	}
 }
 
+/*
+	Name: paintImage
+	Paint the whole image using paintTriangle function.
+*/
 void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 
-	FILE *fp = fopen("error.txt", "w");
-
 	int i, len;
+
+	//Set the Maximum number of points, and Maximum distance to find NN.
 	const static float max_dist = 100.0;
 	const static int npoints = 100;
 
 	len = trimesh_list.size();
 
 	for (i = 0; i < len; i++){
-		Texture tc1, tc2, tc3, qtc;
+		Texture tc1, tc2, tc3;
 		Vertex qm, v1, v2, v3;
 		Normal nm, n1, n2, n3;
 
 		NearestPoints np;
 
+		//Get Triangular Mesh data. Get the information of three points.
 		tc1 = texture_list[trimesh_list[i].p[0].textureidx - 1];
 		tc2 = texture_list[trimesh_list[i].p[1].textureidx - 1];
 		tc3 = texture_list[trimesh_list[i].p[2].textureidx - 1];
@@ -80,7 +112,7 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 		n3 = normal_list[trimesh_list[i].p[2].normalidx - 1];
 
 		Texture temp;
-		PointCoord a, b, c, tempc;
+		PointCoord a, b, c;
 				
 		//Sort by y-coord
 		if (tc1.y < tc2.y){
@@ -108,21 +140,22 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 
 
 		//Calculate the barycentric point of three points on PointCloud(3rd dim)
-		qm.x = v1.x/3 + v2.x/3 + v3.x/3;
-		qm.y = v1.y/3 + v2.y/3 + v3.y/3;
-		qm.z = v1.z/3 + v2.z/3 + v3.z/3;
+		qm.x = (v1.x + v2.x + v3.x) / 3;
+		qm.y = (v1.y + v2.y + v3.y) / 3;
+		qm.z = (v1.z + v2.z + v3.z) / 3;
 
 		nm.x = (n1.x + n2.x + n3.x) / 3;
 		nm.y = (n1.y + n2.y + n3.y) / 3;
 		nm.z = (n1.z + n2.z + n3.z) / 3;
 		//normalize
-		double mag = nm.x*nm.x + nm.y*nm.y + nm.z*nm.z;
+		double mag = nm.x*nm.x + nm.y*nm.y + nm.z*nm.z;//magnitude
 		nm.x /= mag; nm.y /= mag; nm.z /= mag;
 
+		//Set the base point to barycentric.
 		np.pos[0] = qm.x; np.pos[1] = qm.y; np.pos[2] = qm.z;
 			
 		
-		//Find 10 Nearest Neighbors.
+		//Find npoints Nearest Neighbors.
 		np.dist2 = (float*)malloc(sizeof(float)*(npoints + 1));
 		np.index = (const Point**)malloc(sizeof(Point*)*(npoints + 1));
 
@@ -135,7 +168,7 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 
 		//calculate color 
 		float sum_color[3] = { 0 };
-		int mix_color[3] = { 0 };
+		int paint_color[3] = { 0 };
 		double sum_dist=0,avr_dist=0;
 		double sum_dot = 0,avr_dot=0;
 
@@ -156,35 +189,34 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 		}
 
 		
-		
 		for (int j = 0; j < 3; j++){
 			if (sum_color[j]>255) sum_color[j] = 255;
-			mix_color[j] = (int)sum_color[j];
-		}
-
-		if (np.found==0){//For Debug
-			fprintf(fp, "Error Point : %d, %8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf/%8.2lf %8.2lf %8.2lf \n", i, v1.x, v1.y, v1.z, v2.z, v2.y, v2.z, v3.x, v3.y, v3.z);
-			fprintf(fp, "\t\tTexture point : %5lf %5lf/ %5lf %5lf/ %5lf %5lf\nnpfound:%d nppos %lf %lf %lf\n", a.x, a.y, b.x, b.y, c.x, c.y,np.found,np.pos[0],np.pos[1],np.pos[2]);
+			paint_color[j] = (int)sum_color[j];
 		}
 
 		//paint color to img arr
-		paintTriangle(img, imgflag, mix_color, height, width, a, b, c);
+		paintTriangle(img, imgflag, paint_color, height, width, a, b, c);
 		
 		free(np.dist2);
 		free(np.index);
 	}
-	fclose(fp);
 }
 
-void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
-	unsigned char*imgcover;
+/*
+	Name: ImagPostProcessing
+	It is possible to exist some points are not be painted.
+	So, to fill all blank points, Do post-processing with special kernel
+*/
+void imgPostProcessing(unsigned char* img, bool* imgflag, int width, int height){
+	unsigned char *imgcover;
 	imgcover = (unsigned char *)calloc(3 * (width+1)*(height+1), 1);
 
+	//Copy the original data
 	for (int i = 1; i < height+1; i++){
 		for (int j = 1; j < width + 1; j++){
-			imgcover[3*(i*width + j)+0] = img[3*((i - 1)*width + j - 1)+0];
-			imgcover[3 * (i*width + j) + 1] = img[3 * ((i - 1)*width + j - 1) + 1];
-			imgcover[3 * (i*width + j) + 2] = img[3 * ((i - 1)*width + j - 1) + 2];
+			imgcover[3 * (i * width + j) + 0] = img[3 * ((i - 1) * width + j - 1) + 0];
+			imgcover[3 * (i * width + j) + 1] = img[3 * ((i - 1) * width + j - 1) + 1];
+			imgcover[3 * (i * width + j) + 2] = img[3 * ((i - 1) * width + j - 1) + 2];
 		}
 	}
 
@@ -196,29 +228,31 @@ void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
 		1, 1, 1
 	};
 
+	//Post Processing with kernel
 	for (int i = 1; i < height + 1; i++){
 		for (int j = 1; j < width + 1; j++){
 			if (!imgflag[(i - 1)*width + j - 1]){
-				int color_sum[3] = { 0 };
+				int sum_color[3] = { 0 };
 				for (int k = 0; k < 3; k++){
 					for (int l = 0; l < 3; l++){
-						color_sum[0]+=imgcover[3*((i-1+k)*width+(j-1+l))+0]*kernel[k][l];
-						color_sum[1] += imgcover[3 * ((i - 1 + k)*width + (j - 1 + l)) + 1] * kernel[k][l];
-						color_sum[2] += imgcover[3 * ((i - 1 + k)*width + (j - 1 + l)) + 2] * kernel[k][l];
+						sum_color[0] += imgcover[3 * ((i - 1 + k) * width + (j - 1 + l)) + 0] * kernel[k][l];
+						sum_color[1] += imgcover[3 * ((i - 1 + k) * width + (j - 1 + l)) + 1] * kernel[k][l];
+						sum_color[2] += imgcover[3 * ((i - 1 + k) * width + (j - 1 + l)) + 2] * kernel[k][l];
 					}
 				}
-				imgcover[3 * (i*width + j) + 0] = 1.0 / 8.0 * color_sum[0];
-				imgcover[3 * (i*width + j) + 1] = 1.0 / 8.0 * color_sum[1];
-				imgcover[3 * (i*width + j) + 2] = 1.0 / 8.0 * color_sum[2];
+				imgcover[3 * (i*width + j) + 0] = 1.0 / 8.0 * sum_color[0];
+				imgcover[3 * (i*width + j) + 1] = 1.0 / 8.0 * sum_color[1];
+				imgcover[3 * (i*width + j) + 2] = 1.0 / 8.0 * sum_color[2];
 			}
 		}
 	}
 
+	//Save the data
 	for (int i = 1; i < height + 1; i++){
 		for (int j = 1; j < width + 1; j++){
-			img[3*((i - 1)*width + j - 1)+0] = imgcover[3*(i*width + j)+0];
-			img[3 * ((i - 1)*width + j - 1) + 1] = imgcover[3 * (i*width + j) + 1];
-			img[3 * ((i - 1)*width + j - 1) + 2] = imgcover[3 * (i*width + j) + 2];
+			img[3 * ((i - 1) * width + j - 1) + 0] = imgcover[3 * (i * width + j) + 0];
+			img[3 * ((i - 1) * width + j - 1) + 1] = imgcover[3 * (i * width + j) + 1];
+			img[3 * ((i - 1) * width + j - 1) + 2] = imgcover[3 * (i * width + j) + 2];
 		}
 	}
 }

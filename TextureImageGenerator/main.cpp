@@ -30,7 +30,7 @@ int main(void){
 
 	printf("******************* TEXTURE GENERATOR ********************\n");
 	//Input the filename
-	printf("input the obj file name : ");
+	printf("input the file name : ");
 	scanf("%s", filename);
 
 	if (CHECK_TIME){
@@ -87,7 +87,7 @@ int main(void){
 		tPrev = clock();
 	}
 
-	imgKernel(img_res, img_flag, img_width, img_height);
+	imgPostProcessing(img_res, img_flag, img_width, img_height);
 	if (CHECK_TIME){
 		printf("\t- After processing with texture img in %.2fs\n", (double)(clock() - tPrev) / CLOCKS_PER_SEC);
 		tPrev = clock();

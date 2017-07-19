@@ -1,8 +1,6 @@
 #include<stdio.h>
 #include"data.h"
 
-using namespace std;
-
 vector<Vertex> vertex_list;
 vector<Texture> texture_list;
 vector<Normal> normal_list;
@@ -112,10 +110,10 @@ void readPointCloud(char* filename){
 	fclose(fp);
 }
 
-/*	Name: readBinFile
+/*	Name: readBinPlyFile
 	read pointcloud binary file data *.bin
 */
-void readBinFile(char* filename){
+void readBinPlyFile(char* filename){
 	FILE *fp = fopen(filename, "rb");
 
 	if (fp == NULL){
