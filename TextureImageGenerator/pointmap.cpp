@@ -79,6 +79,7 @@ void PointMap::balance(void)
 		}
 		free(pa1);
 	}
+
 }
 
 void PointMap::balance_segment(Point **pbal, Point **porg, const int index, const int start, const int end){
@@ -259,10 +260,6 @@ void PointMap::locate_points(
 			np->dist2[0] = np->dist2[1];
 		}
 	}
-}
-
-void PointMap::set_temp(){
-	temp = points;
 }
 
 #endif

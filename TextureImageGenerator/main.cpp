@@ -20,15 +20,17 @@ int main(void){
 	char fext_obj[5] = ".obj";
 	char fext_ply[5] = ".ply";
 	char fext_bin[5] = ".bin";
+	char fext_bmp[5] = ".bmp";
 	
 	char _objfilename[256];
 	char _plyfilename[256];
+	char _bmpfilename[256];
 	clock_t tStart, tPrev;
 
 
 	printf("******************* TEXTURE GENERATOR ********************\n");
 	//Input the filename
-	printf("input the file name : ");
+	printf("input the obj file name : ");
 	scanf("%s", filename);
 
 	if (CHECK_TIME){
@@ -38,9 +40,11 @@ int main(void){
 
 	strcpy(_objfilename, filename);
 	strcpy(_plyfilename, filename);
+	strcpy(_bmpfilename, filename);
 	strcat(_objfilename, fext_obj);
 	//strcat(_plyfilename, fext_ply);
 	strcat(_plyfilename, fext_bin);
+	strcat(_bmpfilename, fext_bmp);
 
 	readObjFile(_objfilename);
 	printf("***************** OBJ FILE READ COMPLETE *****************\n");
@@ -91,7 +95,7 @@ int main(void){
 
 
 	//Create BMP image file, and write img_res arr to it.
-	createBmpImage(img_width, img_height, img_res);
+	createBmpImage(img_width, img_height, img_res,_bmpfilename);
 	printf("******************* GENERATE BMP IMAGE *******************\n");
 	if (CHECK_TIME){
 		printf("\t- Generate the target bmp file in %.2fs\n", (double)(clock() - tPrev) / CLOCKS_PER_SEC);

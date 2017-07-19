@@ -31,8 +31,6 @@ public:
 	void balance(void);
 	void locate_points(NearestPoints *const np, const int index) const;
 
-	Point* temp;
-	void set_temp();
 private:
 	Point *points;
 

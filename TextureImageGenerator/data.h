@@ -10,12 +10,10 @@ typedef struct{
 	double x, y, z;
 }Vertex;
 
-typedef struct{
-	double x, y, z;
-}Normal;
+typedef Vertex Normal;
 
 typedef struct{
-	int x, y;
+	double x, y;
 }Texture;
 
 typedef struct PointCoord{

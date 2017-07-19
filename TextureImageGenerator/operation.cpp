@@ -2,7 +2,7 @@
 
 double DotProduct(Normal a, const double *b){
 	double ret = a.x*b[0] + a.y*b[1] + a.z*b[2];
-	//if (ret < 0) ret *= -1;
+	
 	return ret;
 }
 
@@ -55,8 +55,8 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 	FILE *fp = fopen("error.txt", "w");
 
 	int i, len;
-	float max_dist = 100.0;
-	int npoints = 100;
+	const static float max_dist = 100.0;
+	const static int npoints = 100;
 
 	len = trimesh_list.size();
 
@@ -222,4 +222,3 @@ void imgKernel(unsigned char* img, bool* imgflag, int width, int height){
 		}
 	}
 }
-

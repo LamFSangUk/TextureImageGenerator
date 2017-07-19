@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void createBmpImage(int w, int h,unsigned char *img){
+void createBmpImage(int w, int h,unsigned char *img, char* filename){
 
 	FILE *f;
 	int filesize = 54 + 3 * w*h;  //w is your image width, h is image height, both int
@@ -27,7 +27,7 @@ void createBmpImage(int w, int h,unsigned char *img){
 	bmpinfoheader[10] = (unsigned char)(h >> 16);
 	bmpinfoheader[11] = (unsigned char)(h >> 24);
 
-	f = fopen("img.bmp", "wb");
+	f = fopen(filename, "wb");
 	fwrite(bmpfileheader, 1, 14, f);
 	fwrite(bmpinfoheader, 1, 40, f);
 	for (int i = h-1; i >=0 ; i--)

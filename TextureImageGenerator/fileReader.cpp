@@ -112,10 +112,10 @@ void readPointCloud(char* filename){
 	fclose(fp);
 }
 
-/*	Name: readBinPlyFile
+/*	Name: readBinFile
 	read pointcloud binary file data *.bin
 */
-void readBinPlyFile(char* filename){
+void readBinFile(char* filename){
 	FILE *fp = fopen(filename, "rb");
 
 	if (fp == NULL){
