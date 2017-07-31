@@ -210,6 +210,7 @@ void paintImage(unsigned char *img,bool* imgflag,int width,int height){
 void imgPostProcessing(unsigned char* img, bool* imgflag, int width, int height){
 	unsigned char *imgcover;
 	imgcover = (unsigned char *)calloc(3 * (width+1)*(height+1), 1);
+	//imgcover has two more rows and two more cols.
 
 	//Copy the original data
 	for (int i = 1; i < height+1; i++){
@@ -255,4 +256,5 @@ void imgPostProcessing(unsigned char* img, bool* imgflag, int width, int height)
 			img[3 * ((i - 1) * width + j - 1) + 2] = imgcover[3 * (i * width + j) + 2];
 		}
 	}
+	free(imgcover);
 }
